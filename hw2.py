@@ -117,9 +117,57 @@ def combine_ttr_res_with_hw1_output(ttr_res, hw1_out_path, save_path):
     hw1_output = pd.read_csv(hw1_out_path, sep='\t', header=0)
 
     hw1_output["TTR'ed extracted text"] = ttr_res[1:]
+    
 
     # hw1_output.to_csv(save_path, sep='\t',index=False)
     return hw1_output
+def categorize_part4(data_path):
+    """
+    categorize for part 4
+    """
+    
+    part3_output = pd.read_csv(data_path, sep='\t')
+    part3_output
+
+    reconnaissance_emails = part3_output[(part3_output['isReconnaissance'] == True)]["TTR'ed extracted text"]
+    socialEngineering_emails = part3_output[(part3_output['isSocialEngineering'] == True)]["TTR'ed extracted text"]
+    malware_emails = part3_output[(part3_output['isMalware'] == True)]["TTR'ed extracted text"]
+    credentialPhishing_emails = part3_output[(part3_output['isCredentialPhishing'] == True)]["TTR'ed extracted text"]
+
+    wrap_emails_into_files(os.getcwd() + '/data/part4', '/Reconnaissance/', reconnaissance_emails)
+    wrap_emails_into_files(os.getcwd() + '/data/part4', '/SocialEngineering/', socialEngineering_emails)
+    wrap_emails_into_files(os.getcwd() + '/data/part4', '/Malware/', malware_emails)
+    wrap_emails_into_files(os.getcwd() + '/data/part4', '/CredentialPhishing/', credentialPhishing_emails)
+def format_string(ll):
+    """
+    format string
+    """
+    res = ""
+    for e in ll:
+        ee = e.replace("'", "")
+        res += ee + "\n"
+    return res
+
+def wrap_emails_into_files(save_parent_path, save_folder_name,emails):
+    """
+    wrap emails into files 
+    
+    """
+    l = pd.Series.tolist(emails)
+    total_res = ""
+    for i in range(len(l)):
+        ele = l[i]
+        ll = ele[1:-1].split(",")
+        single_email = format_string(ll)
+        total_res += single_email + "\n"
+        # fw = open(save_parent_path+save_folder_name + f"{i}.txt", "w+")
+        # fw.write(single_email)
+        # fw.close()
+    
+    # # save all the extracted emails content to one single text file
+    # total_emails_file = open(save_parent_path+save_folder_name + "total.txt", "w+")
+    # total_emails_file.write(total_res)
+    # total_emails_file.close()
 
 if __name__ == "__main__":
     # part3a_res = text2tag(os.getcwd() + "/data/emails_context.json")
@@ -129,7 +177,9 @@ if __name__ == "__main__":
     part3_ttr_res = cluster_based_text2tag(os.getcwd() + "/data/emails_ttr_scores.json")
     
     hw1_output_path = os.getcwd() + "/data/final_data_v2.tsv"
-    part3_save_path = os.getcwd() + "/data/hw2_part3.tsv"
-    combine_ttr_res_with_hw1_output(part3_ttr_res, hw1_output_path, part3_save_path)
+    part3_save_path = os.getcwd() + "/data/part4_input.txt"
+    #part3_output = combine_ttr_res_with_hw1_output(part3_ttr_res, hw1_output_path, part3_save_path)
+    part3_output_path = os.getcwd() + '/data/hw2_part3.tsv'
+    categorize_part4(part3_output_path)
 
    
